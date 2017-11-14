@@ -1,0 +1,60 @@
+#MIPS 1 Assignment Jarrett Cunningham
+
+
+
+.data #lets processor know that we will be submitting data to program
+
+userinput:
+           .word 32 #Need space for a 8 digit hex
+prompt: .asciiz "Enter string: " 
+message: .asciiz "\n the string you entered was "
+invalid: .asciiz "Invalid Input"
+
+.text
+###how to load userinput into an array so that the system can iterate through array
+main: #main is always called
+
+#reading in string in  from user
+
+#prints prompt message
+	la $a0, prompt #load prompt address from memory and store it in $a0
+	li $v0, 4 #loading 4 into $v0 is the opcode to print a string
+	syscall #executes the previous commands
+
+#storing user input
+	la $a0, userinput #loads the address of space and stores it into $a0
+	la $a1, userinput #gets the length of $a1 so theres no overflow
+	li $v0, 8 #op code for getting user input for a string
+	syscall #execute: stores userinput into space which is referenced from $a0
+	
+#loading the hex number
+ la $a0, userinput
+ move $t0, a0 #move the users input to $t0
+ #loop to iterate through string to convert each hex to decimal
+ loop:
+
+ convert:#
+ lb   $t1,0(t0) #load byte into t1 for inspection #loads byte into t1
+ slti $t0,$t1,0x41 #checks if t1 is less than 0x41 if so continue in below script
+             beq  $t0,$zero, #if t0 is zero go branch to letter section ##not sure on what to do from this point
+             #need to have something here to actually convert hex to decimal then store another section to convert it to a letter and store it into an array
+             j end
+		
+addi $t1, $t1, 1 #add one to the adder #restarts iterator###need to figure out how to configure iterator to the length of user input
+j loop #jump to the loop label and start again
+end:
+           jr $ra
+
+#prints output message
+	la $a0, message #load the address of message from memory and store it into $a0
+	li $v0, 4 #opcode to print a string
+	syscall #reads opcode and prints message stored in $a0
+
+#prints user input
+	la $a0, userinput #load address for the users input from memory and store it into $a0
+	li $v0, 4 #opcode to print a string
+	syscall #computer sees opcode to print the string and prints the string that the address of space points to
+
+	exit: 
+	li $v0, 10 #loads op code exit program
+	syscall #exits program
